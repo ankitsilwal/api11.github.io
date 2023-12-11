@@ -25,7 +25,11 @@ export class AuthController {
   @Post("auth")
   async login(@Body() logindto: LoginDto) {
     try {
-      return await this.authservice.login(logindto.username, logindto.password);
+      return await this.authservice.loginn(
+        logindto.username,
+        logindto.password,
+        logindto.pnumber
+      );
     } catch (error) {
       throw new UnauthorizedException(error.message);
     }

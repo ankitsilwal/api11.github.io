@@ -13,5 +13,5 @@ export class UserDto {
   @IsEnum(UserRole)
   role: UserRole;
 
-  pnumber: string;
+  pnumber: number;
 }

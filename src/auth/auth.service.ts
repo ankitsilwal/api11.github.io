@@ -19,13 +19,11 @@ export class AuthService {
   async createuser(userdto: UserDto) {
     const { username, password, role, pnumber } = userdto;
     const hashedpassword = await bcrypt.hash(password, 10);
-    const convertnumber = pnumber.toString();
-    const hashedpnumber = await bcrypt.hash(convertnumber,10);
     const usercreation = await this.authModel.create({
       username,
       password: hashedpassword,
       role,
-      pnumber:hashedpnumber,
+      pnumber,
     });
     if (!usercreation) {
       throw new BadRequestException(`Please Enter valid Details`);
@@ -33,29 +31,33 @@ export class AuthService {
     return usercreation;
   }
 
-  async findbyusername(username: string) {
-    return await this.authModel.findOne({ username });
-  }
 
-  async login(username: string, password: string) {
-    const usersign = await this.findbyusername(username);
-    if (!usersign) {
-      throw new UnauthorizedException(`Username not found`);
+  async loginn(username: string, password: string, pnumber: number) {
+    const user = await this.findUserByUsernameOrPnumber(username, pnumber);
+    if (!user) {
+      throw new UnauthorizedException(`User not found`);
     }
 
-    const validPassword = await bcrypt.compare(password, usersign.password);
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      throw new UnauthorizedException(`Password does not matched`);
+      throw new UnauthorizedException(`Password does not match`);
     }
 
     const payload = {
-      sub: usersign.id,
-      role: usersign.role,
+      sub: user.id,
+      role: user.role,
     };
 
     const accessToken = this.jwtservice.sign(payload, {
       secret: `${process.env.JWT_SECRET}`,
     });
+
     return { accessToken };
+  }
+
+  private async findUserByUsernameOrPnumber(username: string, pnumber: number) {
+    return await this.authModel.findOne({
+      $or: [{ username: username }, { pnumber: pnumber }],
+    });
   }
 }
