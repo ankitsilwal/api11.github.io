@@ -19,11 +19,13 @@ export class AuthService {
   async createuser(userdto: UserDto) {
     const { username, password, role, pnumber } = userdto;
     const hashedpassword = await bcrypt.hash(password, 10);
+    const convertnumber = pnumber.toString();
+    const hashedpnumber = await bcrypt.hash(convertnumber,10)
     const usercreation = await this.authModel.create({
       username,
       password: hashedpassword,
       role,
-      pnumber,
+      pnumber:hashedpnumber,
     });
     if (!usercreation) {
       throw new BadRequestException(`Please Enter valid Details`);

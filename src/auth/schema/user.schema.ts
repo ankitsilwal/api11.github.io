@@ -16,7 +16,7 @@ export class User {
   role: UserRole;
 
   @Prop()
-  pnumber: number;
+  pnumber: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
